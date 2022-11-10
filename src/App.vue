@@ -1,53 +1,69 @@
-<script setup>
-import HelloWorld from "./components/HelloWorld.vue";
-import TheWelcome from "./components/TheWelcome.vue";
-</script>
-
 <template>
-  <header>
-    <img
-      alt="Vue logo"
-      class="logo"
-      src="./assets/logo.svg"
-      width="125"
-      height="125"
-    />
+  <div class="w-full flex">
+    <section id='input-area' class="m-auto w-1/2 px-4">
+      <h1 class="text-2xl text-center font-semibold">{{ taskCount }} {{ taskCount < 2 ? "Task" : "Tasks" }}</h1>
+      <!-- save input as a variable -->
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
+      <form @submit.prevent>
+        <input
+        class="border-2 border-black rounded-md w-full text-center"
+        v-model="newTask"
+        >
 
-  <main>
-    <TheWelcome />
-  </main>
+        <!-- trigger action to add the task -->
+        <button @click="addTaskHandler" class="border-2 border-black rounded-md px-8 mt-2 m-auto">Add task</button>
+      </form>
+    </section>
+  </div>
+  <TaskList  @toggleComplete="toggleCompleteHandler"  :tasks="tasks"/>
 </template>
 
+<script>
+import TaskList from './components/TaskList.vue';
+
+export default {
+  name: 'App', 
+  data() {
+    return {
+      newTask : " ",
+      tasks: [],
+    };
+  },
+  methods: {
+
+    toggleCompleteHandler(i) {
+      this.tasks[i].complete = !this.tasks[i].complete; 
+      console.log('it worked ! ' + i + ' has been clicked')
+    },
+
+    addTaskHandler() {
+      
+      if(this.newTask === " ") return;
+
+      this.tasks.push(this.newTaskObject);
+      this.newTask = " ";
+    },
+  }, 
+  computed: {
+
+    taskCount() {
+      return this.tasks.length;
+    },
+
+    newTaskObject() {
+      return {
+        id: this.tasks.length + 1,
+        name: this.newTask,
+        complete: false,
+      }
+    }
+  },
+  components: {
+    TaskList,
+  }
+}
+</script>
+
 <style scoped>
-header {
-  line-height: 1.5;
-}
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
 </style>
