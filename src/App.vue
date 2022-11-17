@@ -1,69 +1,101 @@
 <template>
-  <div class="w-full flex">
-    <section id='input-area' class="m-auto w-1/2 px-4">
-      <h1 class="text-2xl text-center font-semibold">{{ taskCount }} {{ taskCount < 2 ? "Task" : "Tasks" }}</h1>
-      <!-- save input as a variable -->
+  <div class="container">
+    <h2 class="text-center mt-5">To-do List</h2>
 
-      <form @submit.prevent>
-        <input
-        class="border-2 border-black rounded-md w-full text-center"
-        v-model="newTask"
-        >
+    <div class="d-flex">
+          <input v-model="task" type="text" class="form-control">
+          <button @click="submitTask" v-on:keyup.enter="submitTask" class="btn btn-warning rounded-0">Enregistrer</button>
+    </div>
 
-        <!-- trigger action to add the task -->
-        <button @click="addTaskHandler" class="border-2 border-black rounded-md px-8 mt-2 m-auto">Add task</button>
-      </form>
-    </section>
+    <table class="table mt-5">
+      <thead>
+        <tr>
+          <th scope="col">Task</th>
+          <th scope="col">Status</th>
+          <th scope="col" class="text-center">#</th>
+          <th scope="col" class="text-center">#</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(task, index) in tasks" :key="index">
+          <th> {{task.name}} </th>
+          <td style="width: 120px;">
+            <span @click="changeStatus(index)" class="pointer"> {{task.status}} </span>
+          </td>
+          <td class="text-center" @click="editTask(index)">
+            <div>
+              <span class="fa fa-pen"></span>
+            </div>
+          </td>
+          <td class="text-center" @click="deleteTask(index)">
+            <div>
+              <span class="fa fa-trash"></span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
-  <TaskList  @toggleComplete="toggleCompleteHandler"  :tasks="tasks"/>
+
+
 </template>
 
 <script>
-import TaskList from './components/TaskList.vue';
-
 export default {
-  name: 'App', 
-  data() {
+ name: 'Todo App',
+
+ data() {
     return {
-      newTask : " ",
-      tasks: [],
-    };
-  },
-  methods: {
-
-    toggleCompleteHandler(i) {
-      this.tasks[i].complete = !this.tasks[i].complete; 
-      console.log('it worked ! ' + i + ' has been clicked')
-    },
-
-    addTaskHandler() {
-      
-      if(this.newTask === " ") return;
-
-      this.tasks.push(this.newTaskObject);
-      this.newTask = " ";
-    },
-  }, 
-  computed: {
-
-    taskCount() {
-      return this.tasks.length;
-    },
-
-    newTaskObject() {
-      return {
-        id: this.tasks.length + 1,
-        name: this.newTask,
-        complete: false,
-      }
+      task : '',
+      editedTask: null,
+      availableStatus: ['to-do', 'in progress', 'completed'],
+      tasks: [{
+        name: "Eat chocolate",
+        status: "in-progress"
+      }]
     }
+ },
+
+ methods: {
+
+  submitTask() {
+    if(this.task.length === 0) return; 
+
+    if(this.editedTask === null) {
+        this.tasks.push({
+        name: this.task,
+        status: 'to do'
+      });
+    } else {
+      this.tasks[this.editedTask].name = this.task;
+      this.editedTask = null;
+    }
+
+    this.task = " ";
   },
-  components: {
-    TaskList,
+
+  deleteTask(index) {
+    this.tasks.splice(index, 1);
+  },
+
+  editTask(index) {
+    this.task = this.tasks[index].name
+    this.editedTask = index;
+
+  }, 
+  
+  changeStatus(index) {
+    let newIndex = this.availableStatus.indexOf(this.tasks[index].status);
+    if(++newIndex > 2) newIndex = 0;
+    this.tasks[index].status = this.availableStatus[newIndex];
   }
+ }
+
 }
 </script>
 
 <style scoped>
-
+  .pointer {
+    cursor: pointer;
+  }
 </style>
